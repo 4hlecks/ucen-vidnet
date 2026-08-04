@@ -1,169 +1,896 @@
-.row {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    display: flex;
-    flex-direction: row;
-    margin: 0%;
-    width: 100vw;
-    height: 100vh;
+/* ========================================
+   Design tokens
+   ======================================== */
+
+:root {
+    --app-background: #ffffff;
+    --content-background: #f8f9fb;
+    --surface: #ffffff;
+    --selected-surface: #f1f3f6;
+
+    --text-primary: #16181c;
+    --text-secondary: #8f99aa;
+
+    --border: #dfe3e8;
+    --border-strong: #cbd2dc;
+
+    --navy: #073f66;
+    --navy-hover: #0a527f;
+
+    --yellow: #ffc800;
+    --yellow-hover: #efb900;
+
+    --danger: #ed1c2b;
+    --danger-hover: #cf1322;
+
+    --success-background: #dff5c8;
+    --success-text: #65a433;
+
+    --screen-light: #e8ebef;
+    --screen-light-border: #ccd3dc;
+    --screen-dark: #383d47;
+    --screen-dark-border: #24272e;
+
+    --focus: #168eea;
+
+    --tooltip-background: #111827;
+    --tooltip-text: #ffffff;
+
+    --radius-small: 6px;
+    --radius-medium: 10px;
+    --radius-large: 16px;
 }
 
-.left-side, .right-side {
-    display: flex;  
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-    max-width: 50%;
-}
 
-.left-side {
-    float: left;
-    width: 50%; /* left side shouldn't stretch to right side */
-    background-color: rgb(0, 98, 155);
-}
+/* ========================================
+   Root font sizing
+   ======================================== */
 
-.right-side {
-    float: right;
-    width: 50%;
-    background-color: rgb(198, 146, 20);
-}
-
-.media-upload, .media-list, .media-preview,
-.media-toggle, .media-info {
-    border: solid;
-    border-width: 2px;
-    border-color: white;
-}
-
-/*  flex-basis is the percentage the div will take
-    up alongside other divs. remove it and add fixed
-    height if needed.
+/*
+   Default Electron window:
+   1rem = 12px
 */
-
-.media-upload {
-    flex-shrink: 0; /* keeps div from shrinking */
-    height: 45vh;
-    max-height: 45vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative; /* fits children only inside parent div */
+html {
+    font-size: 12px;
 }
 
-.file {
+
+/* ========================================
+   Reset
+   ======================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
     width: 100%;
     height: 100%;
+    margin: 0;
+}
+
+body {
+    overflow: hidden;
+    background: var(--app-background);
+    color: var(--text-primary);
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    color: inherit;
+}
+
+img,
+video {
+    display: block;
+    max-width: 100%;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ========================================
+   Accessibility
+   ======================================== */
+
+.sr-only {
     position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+button:focus-visible,
+.file-input:focus-visible {
+    outline: 3px solid rgb(22 142 234 / 38%);
+    outline-offset: 2px;
+}
+
+
+/* ========================================
+   Application layout
+   ======================================== */
+
+.app-layout {
+    display: grid;
+    grid-template-columns: minmax(240px, 37%) minmax(0, 63%);
+
+    width: 100vw;
+    height: 100vh;
+    min-width: 700px;
+    min-height: 0;
+
+    background: var(--app-background);
+}
+
+
+/* ========================================
+   Left files panel
+   ======================================== */
+
+.files-panel {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+}
+
+
+/* ========================================
+   Upload area
+   ======================================== */
+
+.upload-area {
+    position: relative;
+    flex: 0 0 120px;
+    overflow: hidden;
+    border: 2px dashed var(--border-strong);
+    border-radius: var(--radius-small);
+    background: var(--surface);
+    transition:
+        border-color 150ms ease,
+        background-color 150ms ease;
+}
+
+.upload-area:hover,
+.upload-area:focus-within {
+    border-color: var(--focus);
+    background: #f8fcff;
+}
+
+.upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    gap: 5px;
+    color: #343944;
+    text-align: center;
+    cursor: pointer;
+}
+
+.upload-label .feather {
+    width: 21px;
+    height: 21px;
+    margin-bottom: 2px;
+    color: #97a2b3;
+    stroke-width: 1.8;
+}
+
+.upload-title {
+    font-size: 0.9167rem;
+}
+
+.upload-formats {
+    color: var(--text-secondary);
+    font-size: 0.8333rem;
+}
+
+.file-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     opacity: 0;
     cursor: pointer;
 }
 
+
+/* ========================================
+   File browser
+   ======================================== */
+
+.file-browser {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.files-heading {
+    flex-shrink: 0;
+    margin: 0 0 8px;
+    color: var(--text-secondary);
+    font-size: 0.9167rem;
+    font-weight: 400;
+}
+
+.empty-file-message {
+    margin: auto;
+    color: var(--text-secondary);
+    font-size: 0.9167rem;
+    text-align: center;
+}
+
 .media-list {
     display: flex;
+    min-height: 0;
     flex-direction: column;
-    flex-grow: 3;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
     overflow-x: hidden;
     overflow-y: auto;
+    list-style: none;
 }
+
+
+/* ========================================
+   File entries
+   ======================================== */
 
 .media-entry {
+    position: relative;
     display: flex;
-    justify-content: flex-end;
-    width: 100%;
-    flex-direction: row;
-    background-color: rgb(0, 66, 105);
-    overflow: hidden;
+    flex-shrink: 0;
+    align-items: stretch;
+    min-width: 0;
+    min-height: 48px;
+    overflow: visible;
+    border-radius: var(--radius-small);
 }
 
-.media-entry-clickable {
+.media-entry-select {
     display: flex;
-    justify-content: flex-start;
-    flex: 1; /* take up all available space */
+    flex: 1;
     align-items: center;
+    min-width: 0;
+    min-height: 48px;
+    padding: 6px 48px 6px 8px;
+    overflow: hidden;
+    border: 0;
+    border-radius: var(--radius-small);
+    background: transparent;
     cursor: pointer;
-    overflow: hidden;
+    text-align: left;
+    transition:
+        background-color 150ms ease,
+        color 150ms ease;
 }
 
-.media-entry-preview {
-    width: 70px;
-    padding-left: 10px;
+.media-entry:not(.is-selected) .media-entry-select:hover {
+    background: #f1f4f7;
+}
+
+.media-entry.is-selected .media-entry-select {
+    background: var(--navy);
+    color: #ffffff;
+}
+
+.media-entry.is-selected .media-entry-select:hover {
+    background: var(--navy-hover);
+}
+
+.media-thumbnail {
     display: flex;
+    flex: 0 0 34px;
     align-items: center;
-    background-color: rgb(0, 42, 66);
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    overflow: hidden;
+    border-radius: 5px;
 }
 
-.media-entry-preview img {
-    width: 60px;
-    height: 50px;
+.media-thumbnail img,
+.media-thumbnail video {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
-.media-entry-name {
-    padding-left: 10px;
+.thumbnail-yellow {
+    background: linear-gradient(145deg, #ffd649, #eda600);
+}
+
+.thumbnail-blue {
+    background: linear-gradient(145deg, #38a6df, #00567e);
+}
+
+.thumbnail-orange {
+    background: linear-gradient(145deg, #ffe100, #ff8900);
+}
+
+.media-entry-text {
+    display: flex;
     min-width: 0;
-    max-width: 50%;
-    font-size: 20px;
-    line-height: 60px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    margin-left: 8px;
+}
+
+.media-entry-name {
     overflow: hidden;
+    font-size: 0.6667rem;
     white-space: nowrap;
     text-overflow: ellipsis;
-    text-align: left;
 }
+
+.media-entry-dimensions {
+    color: var(--text-secondary);
+    font-size: 0.6667rem;
+}
+
+.media-entry.is-selected .media-entry-dimensions {
+    color: rgb(255 255 255 / 65%);
+}
+
+
+/* ========================================
+   Delete button and tooltip
+   ======================================== */
 
 .media-entry-delete {
-    justify-self: flex-end;
-    width: 70px;
-    height: 60px;
-    font-size: 20px;
-    line-height: 60px;
-    text-align: center;
-    background-color: rgb(219, 49, 49);
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    right: 8px;
 
+    display: grid;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    place-items: center;
+
+    border: 0;
+    border-radius: 8px;
+    background: var(--danger);
+    color: #ffffff;
+
+    cursor: pointer;
+    transform: translateY(-50%);
+
+    transition:
+        background-color 150ms ease,
+        transform 100ms ease;
 }
 
-.media-preview {
-    width: 100%;
-    max-height: 45vh;
-    flex-shrink: 0; /* keeps div from shrinking */
+.media-entry-delete:hover {
+    background: var(--danger-hover);
+}
+
+.media-entry-delete:active {
+    transform: translateY(-50%) scale(0.96);
+}
+
+.media-entry-delete .feather {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+}
+
+.button-tooltip {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 9px);
+
+    width: max-content;
+    max-width: 220px;
+    padding: 7px 10px;
+
+    border-radius: 7px;
+    background: var(--tooltip-background);
+    color: var(--tooltip-text);
+
+    font-size: 0.9167rem;
+    line-height: 1.3;
+    white-space: nowrap;
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(4px);
+    visibility: hidden;
+
+    transition:
+        opacity 120ms ease,
+        transform 120ms ease,
+        visibility 120ms ease;
+}
+
+.button-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 11px;
+
+    border: 5px solid transparent;
+    border-top-color: var(--tooltip-background);
+}
+
+.media-entry-delete:hover .button-tooltip,
+.media-entry-delete:focus-visible .button-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+
+/* ========================================
+   Right content panel
+   ======================================== */
+
+.content-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: 16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: var(--content-background);
+}
+
+.selected-file-content {
     display: flex;
-    overflow: hidden;
-    justify-content: center;
+    min-height: 100%;
+    flex-direction: column;
+    gap: 14px;
+}
+
+
+/* ========================================
+   Empty state
+   ======================================== */
+
+.empty-app-state {
+    display: flex;
     align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    flex-direction: column;
+    gap: 12px;
+    color: #98a3b5;
+    text-align: center;
+}
+
+.empty-app-state .feather {
+    width: 52px;
+    height: 52px;
+    stroke-width: 1.7;
+}
+
+.empty-app-state h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+
+/* ========================================
+   Shared panels
+   ======================================== */
+
+.panel {
+    flex-shrink: 0;
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface);
+}
+
+.panel h3 {
+    margin: 0;
+    font-size: 0.9167rem;
+    font-weight: 600;
+}
+
+
+/* ========================================
+   File information
+   ======================================== */
+
+.file-information {
+    padding: 16px;
+}
+
+.file-information h3 {
+    margin-bottom: 11px;
+}
+
+.file-metadata {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+}
+
+.metadata-row {
+    display: grid;
+    grid-template-columns: minmax(80px, 1fr) minmax(0, 2fr);
+    gap: 12px;
+}
+
+.metadata-row dt {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.metadata-row dd {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 0.75rem;
+    text-align: right;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+/* ========================================
+   Connected display selector
+   ======================================== */
+
+.display-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 105px;
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-medium);
+}
+
+.display-option {
     position: relative;
+    display: block;
+    min-width: 0;
+    cursor: pointer;
 }
 
-.media-preview img {
-    max-width: 100%;
-    max-height: 100%;
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* keeps full content visible, contain best for images */
-    align-self: center;
-}
-.media-preview video {
-    max-width: 100%;
-    max-height: 100%;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* keeps full content visible, cover best for videos */
-    align-self: center;
+.display-option + .display-option {
+    border-left: 1px solid var(--border);
 }
 
-.media-toggle {
+.display-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.display-card {
     display: flex;
-    flex-grow: 1;
-    flex-basis: 1vh;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    min-height: 104px;
+
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px;
+
+    border-radius: 0;
+    background: #ffffff;
+
+    transition:
+        background-color 150ms ease,
+        box-shadow 150ms ease;
 }
 
-.vidnet-toggle,.marquee-toggle {
-    width: 50%;
-    max-width: 50%;
-    max-height: 100%;
+.display-option:hover .display-card {
+    background: #f7f8fa;
 }
 
-.media-info {
-    flex-grow: 2;
+.display-option input:checked + .display-card {
+    background: var(--selected-surface);
+}
+
+.display-option input:focus-visible + .display-card {
+    box-shadow: inset 0 0 0 3px rgb(22 142 234 / 45%);
+}
+
+.display-shape {
+    display: block;
+    margin-bottom: 2px;
+
+    border: 2px solid var(--screen-light-border);
+    border-radius: 5px;
+    background: var(--screen-light);
+
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease;
+}
+
+.display-shape-vidnet {
+    width: 65px;
+    height: 43px;
+}
+
+.display-shape-marquee {
+    width: 119px;
+    height: 29px;
+}
+
+.display-option input:checked + .display-card .display-shape {
+    border-color: var(--screen-dark-border);
+    background: var(--screen-dark);
+}
+
+.display-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.display-size {
+    color: var(--text-secondary);
+    font-size: 0.6667rem;
+}
+
+
+/* ========================================
+   Preview, status, and message
+   ======================================== */
+
+.media-result {
+    display: flex;
+    flex: 1;
+    min-height: 235px;
+    flex-direction: column;
+    gap: 9px;
+    padding: 16px;
+}
+
+.preview-frame {
+    display: block;
+    flex-shrink: 0;
+
+    width: 100%;
+    height: auto;
+    margin: 0;
+    overflow: hidden;
+
+    border-radius: var(--radius-small);
+    background: #111111;
+}
+
+.preview-frame img,
+.preview-frame video {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: none;
+}
+
+.status-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.status-badge {
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.6667rem;
+    line-height: 1.4;
+}
+
+.status-correct {
+    background: var(--success-background);
+    color: var(--success-text);
+}
+
+.status-error {
+    background: #ffe1e1;
+    color: #bd2e2e;
+}
+
+.status-warning {
+    background: #fff0c9;
+    color: #a66a00;
+}
+
+
+/* ========================================
+   Message and copy button
+   ======================================== */
+
+.message-box {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+
+    flex: 1;
+    min-height: 110px;
+    gap: 12px;
+    padding: 16px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: #ffffff;
+}
+
+.generated-message {
+    width: 100%;
+    margin: 0;
+
+    color: #333840;
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.copy-message {
+    display: grid;
+    justify-self: end;
+    align-self: end;
+
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    place-items: center;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #ffffff;
+
+    cursor: pointer;
+
+    transition:
+        border-color 150ms ease,
+        background-color 150ms ease;
+}
+
+.copy-message:hover {
+    border-color: var(--border-strong);
+    background: #f5f7f9;
+}
+
+.copy-message .feather {
+    width: 17px;
+    height: 17px;
+    stroke-width: 1.8;
+}
+
+
+/* ========================================
+   Convert button
+   ======================================== */
+
+.convert-file-button {
+    flex: 0 0 50px;
+    width: 100%;
+    min-height: 50px;
+    padding: 10px 20px;
+
+    border: 1px solid #dca700;
+    border-radius: var(--radius-large);
+    background: var(--yellow);
+    color: #111111;
+
+    font-size: 0.9167rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 150ms ease,
+        transform 100ms ease;
+}
+
+.convert-file-button:hover {
+    background: var(--yellow-hover);
+}
+
+.convert-file-button:active {
+    transform: translateY(1px);
+}
+
+.convert-file-button:disabled {
+    border-color: #d5d8dc;
+    background: #e5e7ea;
+    color: #8e949d;
+    cursor: not-allowed;
+}
+
+
+/* ========================================
+   Scrollbars
+   ======================================== */
+
+.media-list,
+.content-panel {
+    scrollbar-width: thin;
+    scrollbar-color: #c6ccd4 transparent;
+}
+
+.media-list::-webkit-scrollbar,
+.content-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.media-list::-webkit-scrollbar-thumb,
+.content-panel::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #c6ccd4;
+}
+
+
+/* ========================================
+   Larger Electron windows
+   ======================================== */
+
+@media (min-width: 805px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+
+/* ========================================
+   Narrow windows
+   ======================================== */
+
+@media (max-width: 650px) {
+    body {
+        overflow: auto;
+    }
+
+    .app-layout {
+        grid-template-columns: 1fr;
+        width: 100%;
+        height: auto;
+        min-width: 0;
+        min-height: 100vh;
+    }
+
+    .files-panel {
+        min-height: 390px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .content-panel {
+        min-height: 540px;
+        overflow: visible;
+    }
 }

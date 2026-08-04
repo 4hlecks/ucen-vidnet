@@ -1,55 +1,280 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css">
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+
+        <title>VidNet Validator</title>
+
+        <link rel="stylesheet" href="styles.css" />
     </head>
+
     <body>
-        <div class="row">
-            <div class="left-side">
-                <div class="media-upload">
-                    <p> Drag & Drop Media Here or <span class="browse">Browse</span></p>
-                    <input type="file" class="file" multiple="multiple" accept="image/png, image/jpeg, image/jpg, image/gif, video/*">
-                </div>
-                <div class="media-list">
-                    <form id="media-list-form">
-                        <h1>Media List</h1>
-                        <div class="media-entry">
-                            <div class="media-entry-clickable">
-                                <div class="media-entry-preview">
-                                    <img src="skeleton.png">
-                                </div>
-                                <div class="media-entry-name">
-                                    file.png
-                                </div>
+        <main class="app-layout">
+            <h1 class="sr-only">VidNet Validator</h1>
+
+            <aside
+                class="files-panel"
+                aria-labelledby="files-heading"
+            >
+                <section
+                    class="upload-area"
+                    aria-labelledby="upload-heading"
+                >
+                    <h2 id="upload-heading" class="sr-only">
+                        Upload media
+                    </h2>
+
+                    <label
+                        for="media-files"
+                        class="upload-label"
+                    >
+                        <i
+                            data-feather="upload"
+                            aria-hidden="true"
+                        ></i>
+
+                        <span class="upload-title">
+                            Drop files or browse
+                        </span>
+
+                        <span class="upload-formats">
+                            Images &amp; Videos
+                        </span>
+                    </label>
+
+                    <input
+                        id="media-files"
+                        class="file-input"
+                        name="media-files"
+                        type="file"
+                        multiple
+                        accept="image/png,image/jpeg,image/gif,video/*"
+                        aria-describedby="upload-help"
+                    />
+
+                    <p id="upload-help" class="sr-only">
+                        Upload PNG, JPEG, GIF, or video files.
+                        Multiple files may be selected.
+                    </p>
+                </section>
+
+                <section class="file-browser">
+                    <h2 id="files-heading" class="files-heading">
+                        Files
+                        <span id="file-count" aria-live="polite">
+                            (0)
+                        </span>
+                    </h2>
+
+                    <p
+                        id="empty-file-message"
+                        class="empty-file-message"
+                    >
+                        No files uploaded yet
+                    </p>
+
+                    <ul
+                        id="media-list"
+                        class="media-list"
+                        aria-label="Uploaded media files"
+                        hidden
+                    ></ul>
+                </section>
+            </aside>
+
+            <!-- Selected file content -->
+            <section
+                class="content-panel"
+                aria-labelledby="selected-file-heading"
+            >
+                <h2 id="selected-file-heading" class="sr-only">
+                    Selected file
+                </h2>
+
+                <section
+                    id="empty-app-state"
+                    class="empty-app-state"
+                    aria-labelledby="empty-state-heading"
+                >
+                    <i
+                        data-feather="tv"
+                        aria-hidden="true"
+                    ></i>
+
+                    <h3 id="empty-state-heading">
+                        Upload files to get started
+                    </h3>
+                </section>
+
+                <div
+                    id="selected-file-content"
+                    class="selected-file-content"
+                    hidden
+                >
+                    <section
+                        class="panel file-information"
+                        aria-labelledby="file-information-heading"
+                    >
+                        <h3 id="file-information-heading">
+                            File Information
+                        </h3>
+
+                        <dl class="file-metadata">
+                            <div class="metadata-row">
+                                <dt>File Name</dt>
+                                <dd id="selected-file-name">—</dd>
                             </div>
-                            
-                            <button class="media-entry-delete">
-                                X
+
+                            <div class="metadata-row">
+                                <dt>File Type</dt>
+                                <dd id="selected-file-type">—</dd>
+                            </div>
+
+                            <div class="metadata-row">
+                                <dt>Dimensions</dt>
+                                <dd id="selected-file-dimensions">—</dd>
+                            </div>
+
+                            <div
+                                id="selected-file-dpi-row"
+                                class="metadata-row"
+                                hidden
+                            >
+                                <dt>DPI</dt>
+                                <dd id="selected-file-dpi">—</dd>
+                            </div>
+
+                            <div
+                                id="selected-file-duration-row"
+                                class="metadata-row"
+                                hidden
+                            >
+                                <dt>Duration</dt>
+                                <dd id="selected-file-duration">—</dd>
+                            </div>
+                        </dl>
+                    </section>
+
+                    <fieldset class="panel display-selector">
+                        <legend class="sr-only">
+                            Select the target display
+                        </legend>
+
+                        <label class="display-option">
+                            <input
+                                type="radio"
+                                name="display-type"
+                                value="vidnet"
+                            />
+
+                            <span class="display-card">
+                                <span
+                                    class="display-shape display-shape-vidnet"
+                                    aria-hidden="true"
+                                ></span>
+
+                                <span class="display-name">
+                                    VidNet
+                                </span>
+
+                                <span class="display-size">
+                                    1920 × 1080 px
+                                </span>
+                            </span>
+                        </label>
+
+                        <label class="display-option">
+                            <input
+                                type="radio"
+                                name="display-type"
+                                value="marquee"
+                                checked
+                            />
+
+                            <span class="display-card">
+                                <span
+                                    class="display-shape display-shape-marquee"
+                                    aria-hidden="true"
+                                ></span>
+
+                                <span class="display-name">
+                                    Marquee
+                                </span>
+
+                                <span class="display-size">
+                                    840 × 144 px
+                                </span>
+                            </span>
+                        </label>
+                    </fieldset>
+
+                    <section
+                        class="panel media-result"
+                        aria-labelledby="preview-heading"
+                    >
+                        <h3 id="preview-heading">
+                            Preview
+                        </h3>
+
+                        <figure
+                            id="preview-frame"
+                            class="preview-frame"
+                        ></figure>
+
+                        <div class="status-header">
+                            <h3>Status</h3>
+
+                            <output
+                                id="validation-status"
+                                class="status-badge"
+                                aria-live="polite"
+                            >
+                                Reading file
+                            </output>
+                        </div>
+
+                        <div class="message-box">
+                            <p
+                                id="generated-message"
+                                class="generated-message"
+                                aria-live="polite"
+                            >
+                                Select a file to view its validation message.
+                            </p>
+
+                            <button
+                                id="copy-message-button"
+                                type="button"
+                                class="copy-message"
+                                aria-label="Copy generated message"
+                                aria-describedby="generated-message"
+                                disabled
+                            >
+                                <i
+                                    data-feather="copy"
+                                    aria-hidden="true"
+                                ></i>
                             </button>
                         </div>
-                    </form>
+                    </section>
+
+                    <button
+                        id="convert-file-button"
+                        type="button"
+                        class="convert-file-button"
+                    >
+                        Convert File
+                    </button>
                 </div>
-            </div>
-            <div class="right-side">
-                <div class="media-preview">
-                    <h1>Media Preview</h1>
-                </div>
-                <div class="media-toggle">
-                    <button class="vidnet-toggle">vidnet</button>
-                    <button class="marquee-toggle">marquee</button>
-                </div>
-                <div class="media-info">
-                    <h1>Media Info</h1>
-                    File Type: Image (.png) <br>
-                    File Dimensions: 1920x1080 pixels <br>
-                    File DPI: <br>
-                    Video Duration: <br>
-                    Message <button class="copy-message"> </button> :
-                </div>
-            </div>
-        </div>
+            </section>
+        </main>
+
+        <script src="vendor/feather.min.js"></script>
         <script src="renderer.js"></script>
     </body>
 </html>
