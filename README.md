@@ -115,37 +115,8 @@ npm install
 npm start
 ```
 
-## Creating a Windows Build
-
-Create the Windows installer:
-
-```bash
-npm run build:win
-```
-
-The generated installer will be placed in the `dist` folder.
-
-To create a portable Windows executable:
-
-```bash
-npm run build:portable
-```
-
 ## Project Structure
-
-```text
-ucen-vidnet/
-├── assets/
-├── build/
-│   └── icon.ico
-├── index.html
-├── main.js
-├── renderer.js
-├── styles.css
-├── package.json
-├── package-lock.json
-└── README.md
-```
+WIP
 
 Your exact folder structure may differ depending on where images, icons, and other assets are stored.
 
